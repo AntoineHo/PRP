@@ -44,7 +44,7 @@ class RunFastQC:
             print("--Generating script file for {} ...".format(filename))
             
             # Creates the string for fastQC
-            fa_cmd = "fastqc -o "+ fastqc_outdir + " " + filename
+            fa_cmd = "fastqc -o "+ fastqc_outdir + " " + self.filehandler.dir + "/" + filename
             
             # Adds zip_extract if the command was True
             if zip_extract == True:
@@ -69,6 +69,9 @@ class RunFastQC:
         # Checks if generation has been done
         if self.generation == False :
             raise GenerationError
+        
+        # re sets working directory
+        os.chdir(self.filehandler.dir)
         
         # Gathers the fastqc scripts directory path
         fastqc_scripts_dir = self.filehandler.dir + "/fastqc_scripts/"
