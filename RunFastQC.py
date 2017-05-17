@@ -81,7 +81,9 @@ class RunFastQC:
         # for each file in fastqc_scripts_dir, sets the path & runs the script
         for filename in scan:
             path = fastqc_scripts_dir + filename
-            subprocess.run(path, shell=True, check=True)
+            f = open(path, 'r')
+            command = f.readline()
+            subprocess.run(command, shell=True, check=True)
             
             
 class GenerationError(Exception):
@@ -93,4 +95,3 @@ class GenerationError(Exception):
         """Returns the message"""
         return self.message
             
-       
