@@ -9,7 +9,7 @@ PyRPi : Python RNAseq Pipeline
 import RunFastQC as rfq
 import FileHandler as fh
 
-data = fh.FileHandler('C:/Users/antoi/Dropbox/Umea 2017/Applied Functionnal Genomics/Assignment/Test_fastqc')
+data = fh.FileHandler('/data/projects/testdata/')
 
 #%%
 fastqc = rfq.RunFastQC(data)
