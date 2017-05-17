@@ -58,14 +58,26 @@ class FileHandler:
         scan = os.listdir(dir)
         # Checks if there are files in dir
         if len(scan) > 0 :
-            # loops through scan
-            for file_name in scan:
-                path = str(dir)+'/'+file_name
-                #Checks if the path is a file
-                if os.path.isfile(path) == True :                    
-                    # Adds file (checks & everything to _infiles)
-                    self.__add__(path)
-        
+            # Checks last char of dir
+            if dir[len(dir)-1] == "\\" or dir[len(dir)-1] == "/" :
+                # loops through scan
+                for file_name in scan:
+                    # defines a path for each file in scan
+                    path = str(dir)+file_name
+                    # Checks if the path is a file
+                    if os.path.isfile(path) == True :                    
+                        # Adds file (checks & everything to _infiles)
+                        self.__add__(path)
+            else:
+                # loops through scan
+                for file_name in scan:
+                    # defines a path for each file in scan
+                    path = str(dir)+'/'+file_name
+                    # Checks if the path is a file
+                    if os.path.isfile(path) == True :                    
+                        # Adds file (checks & everything to _infiles)
+                        self.__add__(path)
+                        
         print(self._infiles)
         """
         self.get_info()
@@ -207,74 +219,6 @@ class FileHandler:
             to_print += str(file) + "\n"
         print(to_print[:len(to_print)-1])
         print("Checking files done-- \n")
-            
-    def check_input_dir(self):
-        """Method called when we want to check if input directory exists and is writeable.
-        Creates input directory if it does not exist"""
-        
-        print("--Checking input directory...")
-        # Changes current working directory to working_directory
-        os.chdir(self.dir)
-        # Gets current working directory
-        cwd = os.getcwd()
-        ###print("Current working directory : {} \n".format(cwd))
-        # Lists directories & files in working_directory
-        listdir = os.listdir(cwd)
-        # Creates the path for an input directory
-        input_dir = self.dir + "/input/"
-        # Checks whether input_dir already exists
-        if "input" not in listdir:
-            # Creates the input directory
-            os.makedirs(input_dir, exist_ok = True)
-            print("Input directory created")
-            
-        # Checks if directory is writeable : tries to write a file & remove it, raise an exception if not possible
-        file_test = input_dir + "write_test.txt"
-        try : 
-            f = open(file_test, 'w+')
-            f.close()
-            os.remove(file_test)
-        except : 
-            raise PermissionError('the directory is not writeable')
-            
-        print("Checking input directory done-- \n")
-            
-    def move_to_input(self):
-        """Method called when we want to move all files to an input directory"""
-        
-        print("--Moving files to input directory...")
-        # Checks input directory
-        self.check_input_dir()
-        # Checks if all the files are valid
-        self.check_files()
-        
-        # Creates the path for an input directory
-        input_dir = self.dir + "/input/"
-        # Move all the input files to the input folder
-        for file_name in self._infiles:
-            # Gets current file path & realpath of input_dir
-            src = os.path.realpath(file_name)
-            dst = os.path.realpath(input_dir)
-            # Moves files from working directory to input
-            os.replace(src,dst+'\\'+file_name)
-            # Update location of file in self.info dictionary
-            new_location = dst
-            self.info_update(file_name, new_location)
-        
-        # Change working directory to /input
-        os.chdir(input_dir)
-        # Gets current working directory
-        cwd = os.getcwd()
-        # Gets files in cwd (could have been in input_dir)
-        listdir = os.listdir(cwd)
-        
-        # prints files in cwd
-        to_print = "-Files in input directory- \n"
-        for element in listdir : 
-            to_print += str(element) + "\n"
-        print(to_print[:len(to_print)-1])
-        
-        print("Moving files to input done-- \n")
         
     def check_output_dir(self):
         """Method called to check if output directory exists, if it is writeable and create it if it does not exist"""
@@ -353,34 +297,4 @@ class FileHandler:
 
 
 
-#%%
-"""
-test = FileHandler("Path/To/dir")
 
-#%% Adding files to test
-test + ["Path/To/file/test_1.pdf","Path/To/file/test_2.pdf","Path/To/file/test_2.pdf"]
-test + "Path/To/file/test_3.pdf"
-#%% Checking files in _infiles
-test.check_files()
-#%% Checks input directory
-test.check_input_dir()
-
-#%% Checks output directory
-test.check_output_dir()
-
-#%% Move files to input directory
-test.move_to_input()
-
-#%% Try the get_info
-print("\n====Try for get_info====")
-test.get_info()
-print("\n====Try for get_info('test_1.pdf')====")
-test.get_info("test_1.pdf")
-
-#%%
-print("\n====Try for test - 'test_1.pdf'====")
-
-test - "test_1.pdf"
-print("\n====Try get_info() after removal of a file (test_1.pdf)====")
-test.get_info()
-"""

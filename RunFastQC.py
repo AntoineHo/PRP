@@ -78,13 +78,15 @@ class RunFastQC:
         
         # Gathers a list of files from the fastqc scripts directory
         scan = os.listdir(fastqc_scripts_dir)
-        # for each file in fastqc_scripts_dir, sets the path & runs the script
+        # for each file in fastqc_scripts_dir, sets the path, opens the file & runs the script
         for filename in scan:
             path = fastqc_scripts_dir + filename
             f = open(path, 'r')
             command = f.readline()
             subprocess.run(command, shell=True, check=True)
-            
+
+        # Updates info dictionary in the filehandler
+        self.filehandler.ran_module("FastQC")            
             
 class GenerationError(Exception):
     """Exception raised when run_fastqc comes before gen_fastqc"""
@@ -95,3 +97,4 @@ class GenerationError(Exception):
         """Returns the message"""
         return self.message
             
+       
