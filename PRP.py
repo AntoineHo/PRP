@@ -6,15 +6,14 @@ Created on Wed May 17 10:56:34 2017
 
 PyRPi : Python RNAseq Pipeline
 """
-import RunFastQC as rfq
+import FastQC as fq
 import FileHandler as fh
+import Runner as rnr
 
-data = fh.FileHandler('Path/To/working_directory/')
+data = fh.FileHandler('C:\\Users\\antoi\\Dropbox\\Umea 2017\\Applied Functionnal Genomics\\Assignment\\Test_fastqc\\')
 
-#%%
-fastqc = rfq.RunFastQC(data)
+qc = fq.FastQC(data)
 
-fastqc.gen_fastqc()
+Run = rnr.Runner(data, qc)
 
-#%%
-fastqc.run_fastqc()
+Run.run_scripts()

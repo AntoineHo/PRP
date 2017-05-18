@@ -8,7 +8,6 @@ PyRPi : Python RNAseq Pipeline
 """
 
 import os
-import shutil
 
 class FileHandler:
     """Will create a working directory in the path/to/dir in argument"""
@@ -21,14 +20,17 @@ class FileHandler:
         self.info = {}
         # Sets self.dir
         self.dir = dir
-        
+        # Sets self.uid unique to every add file (if file got deleted then added back ID will change)
+        self.uid = 0
+                
         # Checks if current working directory is called /working_directory
         os.chdir(self.dir)
         split = os.getcwd().split('\\')
-        cwd = split[len(split)-1]
+        cwd = split[-1]
+        # If current wd is not working_directory : change self.dir
         if cwd != "working_directory" :
             # If it is not working_directory sets the dir path to dir/working_directory
-            self.dir = dir + "/working_directory"
+            self.dir = os.path.join(dir, "working_directory")
             
             os.walk(self.dir, topdown = True)
             # Creates working_directory
@@ -39,49 +41,43 @@ class FileHandler:
             if os.path.isdir(self.dir) == False :
                 raise NotADirectoryError("The directory was not created.")
             
-            # scan is a list of files in the directory, if there are files it ask to remove them
+            # Gets list of files in the directory, if there are already files raises a WorkingDirectory error
             scan = os.listdir(self.dir)
             if len(scan) > 0 :
-                ask = input("There are files in the working directory. Do you want to delete them? (y/n) :")
-                if ask == "y" or ask == "Y" :
-                    # Checks for every element in listdir if it is a file or a directory and deletes it
-                    for element in scan:
-                        path = self.dir + "/" + str(element)
-                        if os.path.isfile(path) == True:
-                            os.remove(path)
-                        elif os.path.isdir(path) == True:
-                            shutil.rmtree(path, ignore_errors=False)
-                        else :
-                            raise TypeError('The element is not a directory or a file')
+                # Checks if elements are dirs or file
+                for element in scan :
+                    path = os.path.join(str(dir), element)
+                    # If it is a file : raise WorkingDirectoryError
+                    if os.path.isfile(path) :
+                        raise WorkingDirectoryError
         
         # Gathers files in dir
         scan = os.listdir(dir)
         # Checks if there are files in dir
         if len(scan) > 0 :
             # Checks last char of dir
-            if dir[len(dir)-1] == "\\" or dir[len(dir)-1] == "/" :
+            if dir[-1] == "\\" or dir[-1] == "/" :
                 # loops through scan
                 for file_name in scan:
                     # defines a path for each file in scan
-                    path = str(dir)+file_name
+                    path = os.path.join(str(dir), file_name)
                     # Checks if the path is a file
-                    if os.path.isfile(path) == True :                    
+                    if os.path.isfile(path) :                    
                         # Adds file (checks & everything to _infiles)
                         self.__add__(path)
             else:
                 # loops through scan
                 for file_name in scan:
-                    # defines a path for each file in scan
-                    path = str(dir)+'/'+file_name
+                    # Defines a path for each file in scan
+                    path = os.path.join(str(dir), file_name)
                     # Checks if the path is a file
-                    if os.path.isfile(path) == True :                    
+                    if os.path.isfile(path) :                    
                         # Adds file (checks & everything to _infiles)
                         self.__add__(path)
-                        
-        print(self._infiles)
-        """
-        self.get_info()
-        """
+            
+        self.check_files()            
+        ###print(self._infiles)
+        ###self.get_info()
         
     def __add__(self, file_list):
         """Method called when doing our object + a path list [file_1, file_2, ...] or + a single file path"""
@@ -91,16 +87,12 @@ class FileHandler:
         # Checks if the argument file_list is a single string then if it is a path
         if type(file_list) == str:
             # Checks if the string corresponds to a path
-            if os.path.isfile(file_list) == False :
+            if not os.path.isfile(file_list) :
                 raise SyntaxError("The arg file_path is not a file or is not found in the directory")
                 
             # Gets file_name from file_list (from the path)
-            split = file_list.split('/')
-            file_name = split[len(split)-1]
+            file_name = os.path.basename(file_list)
             
-            # Moves file to working_directory
-            os.replace(file_list,self.dir+'/'+file_name)
-                
             # Appends the filename to the _infile list if it is not already in
             if file_name not in self._infiles:
                 # Adds file to _infiles list
@@ -114,23 +106,20 @@ class FileHandler:
             file_set = set(file_list)
             # Checks if each element of file_set is a path
             for file_path in file_set:
-                if os.path.isfile(file_path) == False :
+                if not os.path.isfile(file_path) :
                     # Fills a list with elements that are not files
                     excluded.append(file_path)
                     continue
                 
-                
                 # Gets filename from file_path
-                split = file_path.split('/')
-                file_name = split[len(split)-1]
-                # Moves file to working_directory
-                os.replace(file_path,self.dir+'/'+file_name)
+                file_name = os.path.basename(file_path)
+                
                 # If element is a file and not already in _infiles, it appends the infiles list
                 if file_name not in self._infiles:
                     # Adds filename to _infiles list
                     self._infiles.append(file_name)
                     # Fills info dictionary with new file path
-                    self.fill_info(file_name) 
+                    self.fill_info(file_name)
         
         # If the argument file_list is not a list nor a string : raise AttributeError 
         else :
@@ -143,6 +132,7 @@ class FileHandler:
                 ext = split[len(split)-1]
             except: ext = 'invalid_filename'
             print("###Error : {} is not a file name or does not exist.".format(ext))
+        
     
     def __sub__(self, file_list):
         """Method called when doing FileHandler - file_name or [file_names list]"""
@@ -151,7 +141,7 @@ class FileHandler:
             # Gets the file path
             file_path = os.path.realpath(file_list)
             # Checks if the file path exists
-            if os.path.isfile(file_path) == False : 
+            if not os.path.isfile(file_path) : 
                 raise SyntaxError("The argument is not a file or is not found in the directory")
             # Checks if the file_name is in _infiles of the FileHandler
             elif file_list in self._infiles:
@@ -167,7 +157,7 @@ class FileHandler:
                 # Gets the file path
                 file_path = os.path.realpath(file_name)
                 # Checks if the file exists raise an error if not
-                if os.path.isfile(file_path) == False : 
+                if not os.path.isfile(file_path) : 
                     raise SyntaxError("The element is not a file or is not found in the directory")
                 # Removes the filename from infiles and from the info dictionary
                 elif file_name in self._infiles:
@@ -185,7 +175,7 @@ class FileHandler:
         for file in self._infiles:
             string += str(file) + "\n"
         
-        return string[0:len(string)-1]
+        return string[:-1]
         
     def __str__(self):
         """Method called when the object is printed"""
@@ -217,7 +207,7 @@ class FileHandler:
         to_print = "-Files in _infiles- \n"
         for file in self._infiles:
             to_print += str(file) + "\n"
-        print(to_print[:len(to_print)-1])
+        print(to_print[:-1])
         print("Checking files done-- \n")
         
     def check_output_dir(self):
@@ -258,25 +248,27 @@ class FileHandler:
             for key in self.info:
                 #gets only the file name
                 split = key.split("/")
-                file_name = split[len(split)-1]
+                file_name = split[-1]
                 print("{} : \n- ID = {} \n- location = {} \n- Tests = {}\n".format(file_name, self.info[key][0], self.info[key][1], self.info[key][2]))
         else :
             #gets only the file name
             split = file.split("/")
-            file_name = split[len(split)-1]
+            file_name = split[-1]
             print("{} : \n- ID = {} \n- location = {} \n- Tests = {}\n".format(file_name, self.info[file][0], self.info[file][1], self.info[file][2]))
         
         print("File infos--\n")
     
     def fill_info(self, file_name):
         """Function used to fill infos into info dict when a new file is added"""
-        # Fills dictionary with ID (int = len(self.info)), location, [ran_tests]
-        self.info[file_name] = [len(self.info),str(os.path.realpath(file_name)),[None]]
+        # Fills dictionary with ID (int = hash(self.info)), path, [ran_tests]
+        self.info[file_name] = [self.uid,os.path.join(str(self.dir), file_name),[None]]
+        self.uid += 1
         
     def info_update(self, file, new_path):
         """Function called when a file is moved to another directory : updates location"""
         # Checks if new_path corresponds to the file
-        if os.path.isfile(new_path+"\\"+file) == True:
+        path = os.path.join(new_path, file)
+        if os.path.isfile(path) :
             self.info[file][1] = new_path
         # if true location is not new location : raise attribute error
         else :
@@ -296,5 +288,12 @@ class FileHandler:
                 self.info[filename][2].append(test)
 
 
-
+class WorkingDirectoryError(Exception):
+    """Exception raised when run_fastqc comes before gen_fastqc"""
+    def __init__(self):
+        """Only stocks the error message"""
+        self.message = "there are already files in working directory, avoid by changing dir argument x = FileHandler('dir')"
+    def __str__(self):
+        """Returns the message"""
+        return self.message
 
