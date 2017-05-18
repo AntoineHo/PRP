@@ -10,7 +10,7 @@ import FastQC as fq
 import FileHandler as fh
 import Runner as rnr
 
-data = fh.FileHandler('C:\\Users\\antoi\\Dropbox\\Umea 2017\\Applied Functionnal Genomics\\Assignment\\Test_fastqc\\')
+data = fh.FileHandler('Path\\To\\Dir\\')
 
 qc = fq.FastQC(data)
 
