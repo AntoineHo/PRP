@@ -98,7 +98,7 @@ class FileHandler:
                 # Adds file to _infiles list
                 self._infiles.append(file_name)
                 # Fills info dictionary with the file path (here name file_list)
-                self.fill_info(file_name)
+                self.fill_info(file_name, file_list)
                 
         # Checks if the argument file_list is a list of paths
         elif type(file_list) == list:
@@ -119,7 +119,7 @@ class FileHandler:
                     # Adds filename to _infiles list
                     self._infiles.append(file_name)
                     # Fills info dictionary with new file path
-                    self.fill_info(file_name)
+                    self.fill_info(file_name, file_path)
         
         # If the argument file_list is not a list nor a string : raise AttributeError 
         else :
@@ -258,10 +258,10 @@ class FileHandler:
         
         print("File infos--\n")
     
-    def fill_info(self, file_name):
+    def fill_info(self, file_name, file_path):
         """Function used to fill infos into info dict when a new file is added"""
         # Fills dictionary with ID (int = hash(self.info)), path, [ran_tests]
-        self.info[file_name] = [self.uid,os.path.join(str(self.dir), file_name),[None]]
+        self.info[file_name] = [self.uid,file_path,[None]]
         self.uid += 1
         
     def info_update(self, file, new_path):
