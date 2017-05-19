@@ -51,7 +51,7 @@ class Runner:
             f = open(filepath, 'r')
             command = f.readline()
             subprocess.run(command, shell=True, check=True)
-        f.close()
+            f.close()
         
 class GenerationError(Exception):
     """Exception raised when run_fastqc comes before gen_fastqc"""

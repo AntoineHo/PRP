@@ -32,8 +32,6 @@ class FastQC:
         # Then creates subdirectories working_directory/output/fastqc and wd/fastqc_scripts
         fastqc_outdir = os.path.join(self.filehandler.dir, "output", "fastqc")
         fastqc_scripts_dir = os.path.join(self.filehandler.dir, "fastqc_scripts")
-        print(fastqc_outdir)
-        print(fastqc_scripts_dir)
         
         os.makedirs(fastqc_outdir, exist_ok = True)
         os.makedirs(fastqc_scripts_dir, exist_ok = True)
@@ -43,14 +41,15 @@ class FastQC:
             print("--Generating script file for {} ...".format(filename))
             
             # Creates the string for fastQC
-            fa_cmd = "fastqc -o "+ fastqc_outdir + " " + self.filehandler.dir + "/" + filename
+            fa_cmd = "fastqc -o "+ fastqc_outdir + " " + os.path.join(self.filehandler.dir, filename)
             
             # Adds zip_extract if the command was True
             if zip_extract == True:
                 fa_cmd += " -extract "
         
             # Creates a file path for fastqc_filename.sh
-            script = fastqc_scripts_dir + "fastqc_" + filename + ".sh"
+            scriptfile = "fastqc_" + filename + ".sh"
+            script = os.path.join(fastqc_scripts_dir, scriptfile)
             # Creates and open the fastqc_filename.ext.sh file
             f = open(script, 'w+')
             # Writes generated cmd into the script

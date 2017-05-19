@@ -10,7 +10,7 @@ import FastQC as fq
 import FileHandler as fh
 import Runner as rnr
 
-data = fh.FileHandler('Path\\To\\Dir\\')
+data = fh.FileHandler('/studenthome/user9/testdata')
 
 qc = fq.FastQC(data)
 
