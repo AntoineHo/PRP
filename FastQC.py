@@ -40,8 +40,8 @@ class FastQC:
         for filename in self.filehandler._infiles :
             print("--Generating script file for {} ...".format(filename))
             
-            # Creates the string for fastQC
-            fa_cmd = "fastqc -o "+ fastqc_outdir + " " + os.path.join(self.filehandler.dir, filename)
+            # Creates the string for fastQC filepath is taken from the info dictionary of the filehandler
+            fa_cmd = "fastqc -o "+ fastqc_outdir + " " + self.filehandler.info[filename][1]
              
             # Adds zip_extract if the command was True
             if zip_extract == True:
