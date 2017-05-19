@@ -49,6 +49,7 @@ class Runner:
         
         ## Runner reads all paths in list script_files every filepath is opened and command is executed
         for filepath in script_files:
+            print(filepath)
             f = open(filepath, 'r')
             command = f.readline()
             subprocess.run(command, shell=True, check=True)
