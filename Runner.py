@@ -50,6 +50,7 @@ class Runner:
         for filepath in script_files:
             f = open(filepath, 'r')
             command = f.readline()
+            print("Run > {}".format(command))
             subprocess.run(command, shell=True, check=True)
             f.close()
         
