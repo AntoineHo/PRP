@@ -32,6 +32,8 @@ class FastQC:
         # Then creates subdirectories working_directory/output/fastqc and wd/fastqc_scripts
         fastqc_outdir = os.path.join(self.filehandler.dir, "/output/fastqc/")
         fastqc_scripts_dir = os.path.join(self.filehandler.dir + "/fastqc_scripts/")
+        print(fastqc_outdir)
+        print(fastqc_scripts_dir)
         
         os.makedirs(fastqc_outdir, exist_ok = True)
         os.makedirs(fastqc_scripts_dir, exist_ok = True)
