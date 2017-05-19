@@ -32,7 +32,7 @@ class Runner:
         
             # Gathers the fastqc scripts directory path
             fastqc_scripts_dir = os.path.join(self.filehandler.dir, "fastqc_scripts")
-            print(fastqc_script_dir)
+            print(fastqc_scripts_dir)
             # Gathers a list of files from the fastqc scripts directory
             scan = os.listdir(fastqc_scripts_dir)
             # For each file in fastqc_scripts_dir
