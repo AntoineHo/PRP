@@ -32,14 +32,13 @@ class Runner:
         
             # Gathers the fastqc scripts directory path
             fastqc_scripts_dir = os.path.join(self.filehandler.dir, "fastqc_scripts")
-
+        
             # Gathers a list of files from the fastqc scripts directory
             scan = os.listdir(fastqc_scripts_dir)
             # For each file in fastqc_scripts_dir
             for script in scan:
                 # Sets the path
                 path = os.path.join(fastqc_scripts_dir, script)
-
                 # Appends the script path to script_files list
                 script_files.append(path)
                 # Updates info dictionary in the filehandler
@@ -49,7 +48,6 @@ class Runner:
         
         ## Runner reads all paths in list script_files every filepath is opened and command is executed
         for filepath in script_files:
-            print(filepath)
             f = open(filepath, 'r')
             command = f.readline()
             subprocess.run(command, shell=True, check=True)
