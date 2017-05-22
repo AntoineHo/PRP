@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu May 18 13:14:53 2017
+Created on Sat May 20 14:06:34 2017
 
 @author: antoi
+
+PyRPi : Python RNAseq Pipeline
 """
 import os
 import subprocess
@@ -10,55 +12,29 @@ import subprocess
 class Runner:
     """Class that runs generated scripts"""
     
-    def __init__(self, filehandler, fastqc=None):
+    def __init__(self, filehandler):
         """Class constructor"""    
-        # Gets the filehandler object from arguments NECESSARY
+        
         self.filehandler = filehandler
-        # Gets the fastqc object from args (default = None if fastqc was not done or not necessary)
-        self.fqc = fastqc
+        # Sets a list of scripts to run from the filehandler object
+        to_run = []
         
-    def run_scripts(self):
-        """Method called when scripts must be read after generation is done"""
         
-        script_files = []
+        # Sets the path for the scripts directory
+        scripts_dir = os.path.join(self.filehandler.prpdir, "scripts")
         
-        ## FIRST FASTQC SCRIPTS
-        # Checks if generation has been done by the fastqc object (validation step)
-        if self.fqc.generation == False :
-            raise GenerationError
-        else :
-            # Re sets working directory
-            os.chdir(self.filehandler.dir)
+        # Gathers all the files in scripts_dir
+        for root, directories, filenames in os.walk(scripts_dir):
+            for filename in filenames:
+                filepath = os.path.join(root,filename)
+                # Appends the filepaths to the to_run list
+                to_run.append(filepath)
         
-            # Gathers the fastqc scripts directory path
-            fastqc_scripts_dir = os.path.join(self.filehandler.dir, "fastqc_scripts")
-        
-            # Gathers a list of files from the fastqc scripts directory
-            scan = os.listdir(fastqc_scripts_dir)
-            # For each file in fastqc_scripts_dir
-            for script in scan:
-                # Sets the path
-                path = os.path.join(fastqc_scripts_dir, script)
-                # Appends the script path to script_files list
-                script_files.append(path)
-                # Updates info dictionary in the filehandler
-                self.filehandler.ran_module("FastQC")
-               
-        ## OTHER SCRIPTS
-        
-        ## Runner reads all paths in list script_files every filepath is opened and command is executed
-        for filepath in script_files:
+        # loops through the script list:
+        for filepath in to_run:
             f = open(filepath, 'r')
             command = f.readline()
             print("Run > {}".format(command))
             subprocess.run(command, shell=True, check=True)
             f.close()
         
-class GenerationError(Exception):
-    """Exception raised when run_fastqc comes before gen_fastqc"""
-    def __init__(self):
-        """Only stocks the error message"""
-        self.message = "in order to run fast_qc first script files must be generated with gen_fastqc"
-    def __str__(self):
-        """Returns the message"""
-        return self.message

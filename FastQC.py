@@ -1,51 +1,44 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon May 15 16:10:42 2017
+Created on Sat May 20 13:46:33 2017
 
 @author: antoi
 
 PyRPi : Python RNAseq Pipeline
 """
 
-import os
 import FileHandler
-import subprocess
+import os
 
 class FastQC:
     """Class that generate fastqc scripts"""
     
-    def __init__(self, filehandler, zip_extract=False):
-        """Class builder takes a directory for creating a FileHandler object called input_files"""
-        # Sets that filehandler = a given filehandler when creating the FastQC objec
+    def __init__(self, filehandler, dirname, zip_extract=False):
+        """Class builder takes a filehandler object to get files and generate scripts"""
+        
         self.filehandler = filehandler
-        # Sets a validation Boolean for the Runner class first False then True after FastQC object init
-        self.generation = False
+        # Name that will be used to create a directory for scripts & output
+        self.dirname = dirname
         
-        # Sets working directory
-        os.chdir(self.filehandler.dir)
+        # Sets a path for fastqc subdirectory in prp_directory/output/ and fastqc_scripts in prp_directory/scripts/
+        fastqc_outdir = os.path.join(self.filehandler.prpdir, "output", "fastqc_out", self.dirname)
+        fastqc_scripts_dir = os.path.join(self.filehandler.prpdir, "scripts", "fastqc_scripts", self.dirname + "_scripts")
+        # Creates the directories
+        os.makedirs(fastqc_outdir, exist_ok=True)
+        os.makedirs(fastqc_scripts_dir, exist_ok=True)
+        # Checks if the directories are writeable
+        self.check_writeable(fastqc_outdir)
+        self.check_writeable(fastqc_scripts_dir)
         
-        # First checks output directory with fh (FileHandler object)
-        self.filehandler.check_output_dir()
-        # Second checks the files in the filehandler
-        self.filehandler.check_files()
-        
-        # Then creates subdirectories working_directory/output/fastqc and wd/fastqc_scripts
-        fastqc_outdir = os.path.join(self.filehandler.dir, "output", "fastqc")
-        fastqc_scripts_dir = os.path.join(self.filehandler.dir, "fastqc_scripts")
-        
-        os.makedirs(fastqc_outdir, exist_ok = True)
-        os.makedirs(fastqc_scripts_dir, exist_ok = True)
-        
-        # For every file in self._infiles or in list of file fed when command is run
-        for filename in self.filehandler._infiles :
+        for filename in self.filehandler.infiles :
             print("--Generating script file for {} ...".format(filename))
             
             # Creates the string for fastQC filepath is taken from the info dictionary of the filehandler
-            fa_cmd = "fastqc -o "+ fastqc_outdir + " " + self.filehandler.info[filename][1]
+            fa_cmd = "fastqc -o "+ fastqc_outdir + " " + self.filehandler.info[filename][0]
              
             # Adds zip_extract if the command was True
             if zip_extract == True:
-                fa_cmd += " -extract "
+                fa_cmd += " -extract"
         
             # Creates a file path for fastqc_filename.sh
             scriptfile = "fastqc_" + filename + ".sh"
@@ -57,42 +50,17 @@ class FastQC:
             # Closes script file
             f.close()
         
-            print("Generation done--")
+            print("Generation done--")  
             
-        # Turns generation on
-        self.generation = True
-
-   
-    def run_fastqc(self):
-        """Method called when script generation is done"""
-        # Checks if generation has been done
-        if self.generation == False :
-            raise GenerationError
-        
-        # re sets working directory
-        os.chdir(self.filehandler.dir)
-        
-        # Gathers the fastqc scripts directory path
-        fastqc_scripts_dir = self.filehandler.dir + "/fastqc_scripts/"
-        
-        # Gathers a list of files from the fastqc scripts directory
-        scan = os.listdir(fastqc_scripts_dir)
-        # for each file in fastqc_scripts_dir, sets the path, opens the file & runs the script
-        for filename in scan:
-            path = fastqc_scripts_dir + filename
-            f = open(path, 'r')
-            command = f.readline()
-            subprocess.run(command, shell=True, check=True)
-
-        # Updates info dictionary in the filehandler
-        self.filehandler.ran_module("FastQC")            
-            
-class GenerationError(Exception):
-    """Exception raised when run_fastqc comes before gen_fastqc"""
-    def __init__(self):
-        """Only stocks the error message"""
-        self.message = "in order to run fast_qc first script files must be generated with gen_fastqc"
-    def __str__(self):
-        """Returns the message"""
-        return self.message
-            
+    def check_writeable(self, dirpath):
+        """This method raise an error if the directory is not writeable"""
+        # Sets a path for file_test
+        file_test = os.path.join(dirpath, "test.txt")
+        try :
+            # Tries to create the file with a path in the tested directory
+            f = open(file_test, 'w+')
+            f.close()
+            os.remove(file_test)
+        except : 
+            # Raise an error if the file could not be written or removed
+            raise PermissionError('the directory {} is not writeable'.format(dirpath))
