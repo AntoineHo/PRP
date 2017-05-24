@@ -84,10 +84,11 @@ class SortMeRna:
                 # Sets merged reads path
                 merged_path = os.path.join(path,"read-interleaved.fq")
                 # Merges the pair
-                smr_cmd += "merge-paired-reads.sh " + read1 + " " + read2 + " " + merged_path + "\n"
+                smr_cmd += "merge-paired-reads.sh " + read1[:-3] + " " + read2[:-3] + " " + merged_path + "\n"
                 # Sets the sortmerna script
                 smr_cmd += "sortmerna --reads " + merged_path
-                smr_cmd += " --ref $SORTMERNADIR/rRNA_databases/rfam-5s-database-id98.fasta $SORTMERNADIR/rRNA_databases/rfam-5.8s-database-id98.fasta $SORTMERNADIR/rRNA_databases/silva-bac-16s-database-id85.fasta $SORTMERNADIR/rRNA_databases/silva-euk-18s-database-id95.fasta $SORTMERNADIR/rRNA_databases/silva-bac-23s-database-id98.fasta $SORTMERNADIR/rRNA_databases/silva-euk-28s-database-id98.fasta $SORTMERNADIR/rRNA_databases/phix.fasta"
+                smr_cmd += " --ref $SORTMERNADB"
+                #smr_cmd += " --ref $SORTMERNADIR/rRNA_databases/rfam-5s-database-id98.fasta $SORTMERNADIR/rRNA_databases/rfam-5.8s-database-id98.fasta $SORTMERNADIR/rRNA_databases/silva-bac-16s-database-id85.fasta $SORTMERNADIR/rRNA_databases/silva-euk-18s-database-id95.fasta $SORTMERNADIR/rRNA_databases/silva-bac-23s-database-id98.fasta $SORTMERNADIR/rRNA_databases/silva-euk-28s-database-id98.fasta $SORTMERNADIR/rRNA_databases/phix.fasta"
                 # Sets output for rRNA :
                 rrna_path = os.path.join(self.smr_outdir, pair[0].split(".")[0][:-2] + "_rrna_out.fq")
                 smr_cmd += " --aligned " + rrna_path
