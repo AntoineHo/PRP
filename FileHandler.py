@@ -12,7 +12,7 @@ import shutil
 class FileHandler:
     """Object that captures files and locations, store them and prepare for tests"""
     
-    def __init__(self, dir, prp_dir, clean=False):
+    def __init__(self, dir, prp_dir=None, clean=False):
         """Class constructor, sets the variables for the filehandler"""
         
         # First Check if arguments are valid
@@ -25,13 +25,18 @@ class FileHandler:
         # dir is the directory set when creating the filehandler, ideally all working files should be there
         self.dir = dir
         # prp_dir is the path to the scripts and output directory, it is used by the other classes in the PRP
-        self.prpdir = os.path.join(prp_dir, "prp_directory")
+        if prp_dir == None:
+            self.prpdir = os.path.join(dir, "prp_directory")
+        else :
+            self.prpdir = os.path.join(prp_dir, "prp_directory")
         # infiles is a list of filenames handled by the object
         self.infiles = []
         # uid is a unique ID given to a file upon addition
         self.uid = 0
         # info is a dictionary which keys are filenames and values are lists [uid,path,[tests done]]
         self.info = {}
+        # script_dict is a dictionary which keys (files) give path to scripts to be run in the order the scripts were generated
+        self.script_dict = {}
         
         # Third Check if clean = True : it will remove tree of any directory in prp_directory
         # Best way to avoid further errors when a test must be rerun, but DELETES PREVIOUS OUTPUTS
@@ -80,6 +85,8 @@ class FileHandler:
         self.info[filename] = [filepath, self.uid, [None]]
         # Increment the uid
         self.uid += 1
+        # Adds a file in the script_dict giving an empty list as value
+        self.script_dict[filename] = []
         
     def __sub__(self, filename):
         """This method is used when we want to remove one particular file from infiles and info"""
@@ -205,18 +212,22 @@ class FileHandler:
             # Removes directory tree (files included)
             shutil.rmtree(path)
             
-    def ran_module(self, test):
-        """This class updates the object info dictionary when a test is run
-        It however requires to be called by another object using a FileHandler"""
+    def ran_module(self, filename, test, script_path):
+        """This class updates the object info dictionary when a test is planned
+        It however requires to be called by another object using a FileHandler
+        It also appends the script_path to script_dict lists"""
         
-        for filename in self.infiles:
-            # Checks if another test has already been done
-            if self.info[filename][2] == None:
-                # If it is the first test, change None to a list [test]
-                self.info[filename][2] = [test]
-            else :
-                # If it is not the first test, appends the list [test1, test2, ...] with test
-                self.info[filename][2].append(test)
+        # Checks if another test has already been done
+        if self.info[filename][2] == None:
+            # If it is the first test, change None to a list [test]
+            self.info[filename][2] = [test]
+        else :
+            # If it is not the first test, appends the list [test1, test2, ...] with test
+            self.info[filename][2].append(test)
+        
+        # Adds the script path to script_dict
+        self.script_dict[filename].append(script_path)
+            
                 
 class WorkingDirectoryError(Exception):
     """Exception raised when prp_directory is used as an argument directory"""

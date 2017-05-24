@@ -12,8 +12,8 @@ import FileHandler as fh
 import FastQC as fq
 
 # Creates a filehandler from a folder
-data = fh.FileHandler("/studenthome/user9/testdata", "/studenthome/user9/testdata")
-#data = fh.FileHandler("C:\\Users\\antoi\\Dropbox\\Umea 2017\\Applied Functionnal Genomics\\Assignment\\V2\\testdir", "C:\\Users\\antoi\\Dropbox\\Umea 2017\\Applied Functionnal Genomics\\Assignment\\V2\\testdir", clean=True)
+#data = fh.FileHandler("/studenthome/user9/testdata", "/studenthome/user9/testdata")
+data = fh.FileHandler("C:\\Users\\antoi\\Dropbox\\Umea 2017\\Applied Functionnal Genomics\\Assignment\\V2\\testdir", "C:\\Users\\antoi\\Dropbox\\Umea 2017\\Applied Functionnal Genomics\\Assignment\\V2\\testdir", clean=True)
 # Creates a FastQC object from the filehandler, directory name is "raw"
 qc = fq.FastQC(data, "raw")
 # Runs the generated scripts

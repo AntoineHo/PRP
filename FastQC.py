@@ -14,7 +14,8 @@ class FastQC:
     """Class that generate fastqc scripts"""
     
     def __init__(self, filehandler, dirname, zip_extract=False):
-        """Class builder takes a filehandler object to get files and generate scripts"""
+        """Class builder takes a filehandler object to get files and generate scripts
+        It will add the script path in each filename entry of the filehandler script_dict dictionary"""
         
         self.filehandler = filehandler
         # Name that will be used to create a directory for scripts & output
@@ -43,12 +44,17 @@ class FastQC:
             # Creates a file path for fastqc_filename.sh
             scriptfile = "fastqc_" + filename + ".sh"
             script = os.path.join(fastqc_scripts_dir, scriptfile)
+            # Adds the filepath to the script dict in the FileHandler
+            self.filehandler.script_dict[filename].append(script)
             # Creates and open the fastqc_filename.ext.sh file
             f = open(script, 'w+')
             # Writes generated cmd into the script
             f.write(fa_cmd) 
             # Closes script file
             f.close()
+            
+            # Adds dirname_FastQC in the ran_test section of the filehandler info dictionary
+            self.filehandler.ran_module(filename, dirname + "_FastQC", script)
         
             print("Generation done--")  
             
