@@ -13,7 +13,7 @@ import FastQC as fq
 import SortMeRNA as smr
 
 # Creates a filehandler from a folder
-data = fh.FileHandler("/studenthome/user9/testdata", "/studenthome/user9/testdata")
+data = fh.FileHandler("/studenthome/user9/testdata", "/studenthome/user9/testdata", clean = True)
 #data = fh.FileHandler("C:\\Users\\antoi\\Dropbox\\Umea 2017\\Applied Functionnal Genomics\\Assignment\\V2\\testdir", "C:\\Users\\antoi\\Dropbox\\Umea 2017\\Applied Functionnal Genomics\\Assignment\\V2\\testdir", clean=True)
 
 rna = smr.SortMeRna(data)
