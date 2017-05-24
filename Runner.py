@@ -17,13 +17,13 @@ class Runner:
         
         self.filehandler = filehandler
         
-        
         # Sets a list of scripts to run from the filehandler object
         for filename in  self.filehandler.infiles:            
             to_run = []
             # Gets all path to scripts to run in the script dict & appends to_run list
             for script_path in self.filehandler.script_dict[filename]:
-                to_run.append(script_path)
+                if script_path != None:
+                    to_run.append(script_path)
             # loops through the script list, opens, reads and close scripts
             for filepath in to_run:
                 f = open(filepath, 'r')
