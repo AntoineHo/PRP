@@ -27,10 +27,19 @@ class Runner:
             # loops through the script list, opens, reads and close scripts
             for filepath in to_run:
                 f = open(filepath, 'r')
-                command = f.readline()
-                print("Run > {}".format(command))
-                subprocess.run(command, shell=True, check=True)
+                nline = self.file_len(f)
+                i = 0
+                while i < nline:
+                    command = f.readline()
+                    print("Run > {}".format(command))
+                    subprocess.run(command, shell=True, check=True)
+                    i+=1
                 f.close()
             # Erase the scripts to run in the script_dict filename key
             self.filehandler.script_dict[filename] = []
         
+    def file_len(self, fname):
+        with open(fname) as f:
+            for i, l in enumerate(f):
+                pass
+            return i + 1
