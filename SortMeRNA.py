@@ -140,6 +140,7 @@ class SortMeRna:
         
         for file in filelist:
             filename = re.split(".fq", file)[0]
+            print(filename)
             for pair in filelist_to_empty:
                 pairname = pair.split(".")[0]
                 if pairname[:-2] == filename[:-2] and pairname != filename :
