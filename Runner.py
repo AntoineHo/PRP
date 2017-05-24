@@ -27,7 +27,7 @@ class Runner:
             # loops through the script list, opens, reads and close scripts
             for filepath in to_run:
                 f = open(filepath, 'r')
-                nline = self.file_len(f)
+                nline = self.file_len(filepath)
                 i = 0
                 while i < nline:
                     command = f.readline()
