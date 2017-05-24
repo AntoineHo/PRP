@@ -8,6 +8,7 @@ PyRPi : Python RNAseq Pipeline
 """
 
 import os
+import re
 
 class SortMeRna:
     """Class object that will create a script for each file in the FileHandler"""
@@ -42,7 +43,7 @@ class SortMeRna:
                 smr_cmd += "gunzip " + filepath + "\n"
                 # Sets the SortMeRna script
                 smr_cmd += "sortmerna"
-                smr_cmd += " --reads " + filename.split(".")[0] + "fq "
+                smr_cmd += " --reads " + filename.split(".")[0] + ".fq "
                 smr_cmd += " --ref $SORTMERNADIR/rRNA_databases/rfam-5s-database-id98.fasta $SORTMERNADIR/rRNA_databases/rfam-5.8s-database-id98.fasta $SORTMERNADIR/rRNA_databases/silva-bac-16s-database-id85.fasta $SORTMERNADIR/rRNA_databases/silva-euk-18s-database-id95.fasta $SORTMERNADIR/rRNA_databases/silva-bac-23s-database-id98.fasta $SORTMERNADIR/rRNA_databases/silva-euk-28s-database-id98.fasta $SORTMERNADIR/rRNA_databases/phix.fasta"
                 
                 # Sets output for rRNA :
@@ -138,7 +139,7 @@ class SortMeRna:
         filelist_to_empty = set(self.filehandler.infiles)
         
         for file in filelist:
-            filename = file.split(".")[0]
+            filename = re.split(".fq", file)[0]
             for pair in filelist_to_empty:
                 pairname = pair.split(".")[0]
                 if pairname[:-2] == filename[:-2] and pairname != filename :
