@@ -21,4 +21,4 @@ rna = smr.SortMeRna(data)
 # Creates a FastQC object from the filehandler, directory name is "raw"
 #qc = fq.FastQC(data, "raw")
 # Runs the generated scripts
-#Run = rnr.Runner(data)
+Run = rnr.Runner(data)
