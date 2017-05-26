@@ -11,14 +11,34 @@ import Runner as rnr
 import FileHandler as fh
 import FastQC as fq
 import SortMeRNA as smr
+import yaml
+
+with open("config.yml", 'r') as confile:
+    cfg = yaml.load(confile)
+    
+"""
+for section in cfg: 
+    print(section)
+    for element in cfg[section]:
+        print("  " + element + " > " + str(cfg[section][element]))
+"""
 
 # Creates a filehandler from a folder
-data = fh.FileHandler("/studenthome/user9/testdata", "/studenthome/user9/testdata", clean = True)
-#data = fh.FileHandler("C:\\Users\\antoi\\Dropbox\\Umea 2017\\Applied Functionnal Genomics\\Assignment\\V2\\testdir", "C:\\Users\\antoi\\Dropbox\\Umea 2017\\Applied Functionnal Genomics\\Assignment\\V2\\testdir", clean=True)
+data = fh.FileHandler(cfg["config"]["reads_dir"], cfg["config"]["work_dir"], clean=cfg["config"]["clean"])
 
-rna = smr.SortMeRna(data)
-#%%
-# Creates a FastQC object from the filehandler, directory name is "raw"
-#qc = fq.FastQC(data, "raw")
-# Runs the generated scripts
-Run = rnr.Runner(data)
+# Checks order :
+order = cfg["config"]["test_order"]
+# Creates script accordingly
+for element in order:
+    if element == "fastqc":
+        # Creates a fastqc object depending on the config in fastqc
+        qc = fq.FastQC(data, cfg["fastqc"]["directory"], zip_extract = cfg["fastqc"]["zipextract"])
+        # Runs the generated script
+        run = rnr.Runner(data)
+    elif element == "sortmerna":
+        # Creates a smr object
+        rna = smr.SortMeRna(data, cfg["sortmerna"]["database"], number_of_threads=cfg["sortmerna"]["number_of_threads"])
+        run = rnr.Runner(data)
+    elif element == "trimmer":
+        pass
+        

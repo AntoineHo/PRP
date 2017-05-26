@@ -13,9 +13,13 @@ import re
 class SortMeRna:
     """Class object that will create a script for each file in the FileHandler"""
     
-    def __init__(self, filehandler):
+    def __init__(self, filehandler, rna_database, number_of_threads=1):
         
         self.filehandler = filehandler
+        
+        self.rna_database = rna_database
+        
+        self.number_of_threads = number_of_threads
         
         # Sets a path for sortmerna subdirectory in prp_directory/output/ and sortmerna_scripts in prp_directory/scripts/
         self.smr_outdir = os.path.join(self.filehandler.prpdir, "output", "sortmerna_out")
@@ -82,21 +86,30 @@ class SortMeRna:
                 smr_cmd += "gunzip " + read1 + "\n"
                 smr_cmd += "gunzip " + read2 + "\n"
                 # Sets merged reads path
-                merged_path = os.path.join(path,"read-interleaved.fq")
+                merged_path = os.path.join(path, pair[0] + "_read-interleaved.fq")
                 # Merges the pair
                 smr_cmd += "merge-paired-reads.sh " + read1[:-3] + " " + read2[:-3] + " " + merged_path + "\n"
                 # Sets the sortmerna script
                 smr_cmd += "sortmerna --reads " + merged_path
-                smr_cmd += " --ref /usr/local/share/rRNA_databases/rfam-5s-database-id98.fasta /usr/local/share/rRNA_databases/index/rfam-5s-database-id98:/usr/local/share/rRNA_databases/silva-euk-28s-id98.fasta /usr/local/share/rRNA_databases/index/silva-euk-28s-id98:/usr/local/share/rRNA_databases/silva-euk-18s-id95.fasta /usr/local/share/rRNA_databases/index/silva-euk-18s-id95:/usr/local/share/rRNA_databases/silva-arc-16s-id95.fasta /usr/local/share/rRNA_databases/index/silva-arc-16s-id95:/usr/local/share/rRNA_databases/silva-bac-16s-id90.fasta /usr/local/share/rRNA_databases/index/silva-bac-16s-id90:/usr/local/share/rRNA_databases/silva-arc-23s-id98.fasta /usr/local/share/rRNA_databases/index/silva-arc-23s-id98:/usr/local/share/rRNA_databases/silva-bac-23s-id98.fasta /usr/local/share/rRNA_databases/index/silva-bac-23s-id98:/usr/local/share/rRNA_databases/rfam-5.8s-database-id98.fasta /usr/local/share/rRNA_databases/index/rfam-5.8s-database-id98:/usr/local/share/rRNA_databases/phix.fasta /usr/local/share/rRNA_databases/index/phix"
-                #smr_cmd += " --ref $SORTMERNADIR/rRNA_databases/rfam-5s-database-id98.fasta $SORTMERNADIR/rRNA_databases/rfam-5.8s-database-id98.fasta $SORTMERNADIR/rRNA_databases/silva-bac-16s-database-id85.fasta $SORTMERNADIR/rRNA_databases/silva-euk-18s-database-id95.fasta $SORTMERNADIR/rRNA_databases/silva-bac-23s-database-id98.fasta $SORTMERNADIR/rRNA_databases/silva-euk-28s-database-id98.fasta $SORTMERNADIR/rRNA_databases/phix.fasta"
+                
+                """
+                try :
+                    env = os.environ[str(rna_database)]
+                except :
+                    raise KeyError("the environment SORTMERNADB is not found")
+                smr_cmd += " --ref " + str(env) 
+                """
+                
+                # Seems to work with $SORTMERNA in string
+                smr_cmd += " --ref $SORTMERNADB"
                 # Sets output for rRNA :
-                rrna_path = os.path.join(self.smr_outdir, pair[0].split(".")[0][:-2] + "_rrna_out.fq")
+                rrna_path = os.path.join(self.smr_outdir, pair[0].split(".")[0][:-2] + "_rrna_out")
                 smr_cmd += " --aligned " + rrna_path
                 # Sets output for clean :
-                clean_path = os.path.join(self.smr_outdir, pair[0].split(".")[0][:-2] + "_clean_out.fq")
+                clean_path = os.path.join(self.smr_outdir, pair[0].split(".")[0][:-2] + "_clean_out")
                 smr_cmd += " --other " + clean_path
                 # Sets nber of threads
-                number_of_threads = 1
+                number_of_threads = self.number_of_threads
                 smr_cmd += " --fastx --paired_in --log -v -a " + str(number_of_threads) + "\n"
                 
                 # Compress the reads from the pair
@@ -104,7 +117,8 @@ class SortMeRna:
                 smr_cmd += "gzip " + read2[:-3] + "\n"
                 # Compress the output from the SortMeRna
                 smr_cmd += "gzip " + rrna_path + "\n"
-                smr_cmd += "gzip " + clean_path
+                smr_cmd += "gzip " + clean_path + "\n"
+                # Compress the reads_interleaved
                 
                    
                 # Creates a file.sh for the runner
@@ -123,7 +137,7 @@ class SortMeRna:
         script = os.path.join(self.smr_scripts_dir, scriptfile)
         # Adds the filepath to the script dict in the FileHandler
         self.filehandler.script_dict[filename].append(script)
-        # Creates and open the fastqc_filename.ext.sh file
+        # Creates and open the sortmerna_filename.ext.sh file
         f = open(script, 'w+')
         # Writes generated cmd into the script
         f.write(script_string) 
