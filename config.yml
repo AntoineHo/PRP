@@ -1,8 +1,8 @@
 ---
 config:
     test_order:     [sortmerna]
-    work_dir:  "C:\\Users\\antoi\\Dropbox\\Umea 2017\\Applied Functionnal Genomics\\Assignment\\V2\\testdir"
-    reads_dir:     "C:\\Users\\antoi\\Dropbox\\Umea 2017\\Applied Functionnal Genomics\\Assignment\\V2\\testdir"
+    work_dir:  "/studenthome/user9/testdata"
+    reads_dir:     "/studenthome/user9/testdata"
     clean:     yes
 sortmerna:
     database:  "$SORTMERNADB"
